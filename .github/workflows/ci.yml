@@ -15,7 +15,7 @@ env:
   UBOOT_RELEASE: latest
   UBOOT_BURNIMG: eMMC.burn.img
   ARMBIAN_REPO: armbian/build
-  ARMBIAN_REF: v25.02
+  ARMBIAN_REF: main
   PATCHES: 4077,5076
   PATCHES_DISABLED: 5082
 
@@ -156,12 +156,26 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Get version
+        uses: actions/checkout@main
+        with:
+          repository: armbian/os
+          fetch-depth: 0
+          clean: false
+          path: os
+
+      - shell: bash
+        run: |
+          cat os/stable.json | jq '.version' | sed "s/\"//g" | sed 's/^/ARMBIAN_VERSION=/' >> $GITHUB_ENV
+          [[ "${{ inputs.armbian_version }}" != '' ]] && echo "ARMBIAN_VERSION=${{ inputs.armbian_version }}" >> $GITHUB_ENV
+
       - name: Build
         run: |
           # Don't update remote cache
           export GITHUB_ACTIONS=false
           sudo --preserve-env \
             ./compile.sh kernel \
+              REVISION="${{ env.ARMBIAN_VERSION }}" \
               ALLOW_ROOT=yes \
               BOARD=onecloud \
               BRANCH=${{ matrix.BRANCH }} \
@@ -243,12 +257,26 @@ jobs:
           name: debs-${{ matrix.BRANCH }}
           path: output/debs/
 
+      - name: Get version
+        uses: actions/checkout@main
+        with:
+          repository: armbian/os
+          fetch-depth: 0
+          clean: false
+          path: os
+
+      - shell: bash
+        run: |
+          cat os/stable.json | jq '.version' | sed "s/\"//g" | sed 's/^/ARMBIAN_VERSION=/' >> $GITHUB_ENV
+          [[ "${{ inputs.armbian_version }}" != '' ]] && echo "ARMBIAN_VERSION=${{ inputs.armbian_version }}" >> $GITHUB_ENV
+
       - name: Build
         run: |
           # Don't update remote cache
           export GITHUB_ACTIONS=false
           sudo --preserve-env \
             ./compile.sh build \
+              REVISION="${{ env.ARMBIAN_VERSION }}" \
               ALLOW_ROOT=yes \
               BOARD=onecloud \
               BRANCH=${{ matrix.BRANCH }} \
