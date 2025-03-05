@@ -2,11 +2,11 @@ name: CI
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - readme
-  #   paths:
-  #     - .github/workflows/ci.yml
+  push:
+    branches:
+      - readme
+    paths:
+      - .github/workflows/ci.yml
 
 env:
   SCRIPT_REPO: ${{ github.repository }}
@@ -15,7 +15,7 @@ env:
   UBOOT_RELEASE: latest
   UBOOT_BURNIMG: eMMC.burn.img
   ARMBIAN_REPO: armbian/build
-  ARMBIAN_REF: main
+  ARMBIAN_REF: v25.02
   PATCHES: 4077,5076
   PATCHES_DISABLED: 5082
 
